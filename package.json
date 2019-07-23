@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "sf": "index.js"
+  },
   "scripts": {
     "start": "node index.js"
   },
@@ -22,6 +25,11 @@
   },
   "homepage": "https://github.com/mutantcrow/frontend-developer-cli#readme",
   "dependencies": {
+    "fs-extra": "^8.1.0",
     "inquirer": "^6.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-config-google": "^0.13.0"
   }
 }
