@@ -1,0 +1,27 @@
+{
+  "name": "frontend-developer-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mutantcrow/frontend-developer-cli.git"
+  },
+  "keywords": [
+    "frontend cli",
+    "build tool",
+    "build cli"
+  ],
+  "author": "Erdem Arslan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mutantcrow/frontend-developer-cli/issues"
+  },
+  "homepage": "https://github.com/mutantcrow/frontend-developer-cli#readme",
+  "dependencies": {
+    "inquirer": "^6.5.0"
+  }
+}
