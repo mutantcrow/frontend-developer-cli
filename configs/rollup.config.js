@@ -6,11 +6,11 @@ const postcss = require('rollup-plugin-postcss');
 const autoprefixer = require('autoprefixer');
 let browsersync = undefined;
 
-const {input, output, extractCSS, proxy} = require('./package.json');
+const {input, output, css, proxy} = require('./package.json');
 const isProduction = process.env.production ? true : false;
 
 const postcssOptions = {
-  extract: extractCSS,
+  extract: css,
   plugins: [autoprefixer()],
   minimize: isProduction,
   sourceMap: !isProduction,

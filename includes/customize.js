@@ -1,7 +1,7 @@
 const {writeJSONSync, copyFileSync} = require('fs-extra');
 const execSync = require('child_process').execSync;
 
-module.exports = (input, output, extractCSS, proxy) => {
+module.exports = (input, output, css, proxy) => {
   const devDependencies = [
     '@babel/core',
     '@babel/preset-env',
@@ -20,7 +20,7 @@ module.exports = (input, output, extractCSS, proxy) => {
     input,
     output,
     proxy,
-    extractCSS,
+    css,
     scripts: {
       start: 'rollup -c -w',
       build: 'rollup -c --environment production',

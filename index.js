@@ -25,6 +25,11 @@ if (inputFileExtension === false) {
 }
 
 /**
+ * Get base name of js file.
+ */
+const inputFileBaseName = inputFileName.split('.js')[0];
+
+/**
  * Start Asking Questions
  */
 inquirer
@@ -38,7 +43,7 @@ inquirer
       {
         type: 'input',
         name: 'outputFileName',
-        message: 'Enter the output file path: ',
+        message: 'Enter a output file name: ',
         default: inputFileName,
         validate: (userInput) => {
           if (getValidFileExtension(userInput)) {
@@ -52,6 +57,20 @@ inquirer
         name: 'extractCSS',
         message: 'Should imported css is to be extracted?',
         default: false,
+      },
+      {
+        type: 'input',
+        name: 'cssPath',
+        message: 'Please enter css extraction path: ',
+        default: './',
+        when: ({extractCSS}) => extractCSS,
+      },
+      {
+        type: 'input',
+        name: 'cssFileName',
+        message: 'Please enter a name for css file: ',
+        default: `${inputFileBaseName}.css`,
+        when: ({extractCSS}) => extractCSS,
       },
       {
         type: 'confirm',
@@ -79,11 +98,19 @@ inquirer
 /**
  * Process answers
  */
-function startProcess({outputPath, outputFileName, extractCSS, proxy}) {
+function startProcess({
+  outputPath,
+  outputFileName,
+  extractCSS,
+  cssPath,
+  cssFileName,
+  proxy,
+}) {
   const input = `${cwd}/${inputFileName}`;
   const output = `${outputPath}/${outputFileName}`;
+  const css = extractCSS ? `${cssPath}/${cssFileName}` : false;
 
-  customize(input, output, extractCSS, proxy);
+  customize(input, output, css, proxy);
 
   console.log(
       '\033[32m',
