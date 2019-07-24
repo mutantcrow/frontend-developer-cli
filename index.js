@@ -41,6 +41,20 @@ inquirer
           return 'Output file extension needs to be js or scss.';
         },
       },
+      {
+        type: 'confirm',
+        name: 'browsersync',
+        message: 'Will browsersync be used?',
+      },
+      {
+        type: 'input',
+        name: 'proxy',
+        message: 'Please enter proxy addres: ',
+        default: false,
+        when: ({browsersync}) => {
+          return browsersync;
+        },
+      },
     ])
     .then((answers) => {
       startProcess(answers);
@@ -49,12 +63,12 @@ inquirer
 /**
  * Process answers
  */
-function startProcess({output}) {
+function startProcess({output, proxy}) {
   const input = `${cwd}/${inputFileName}`;
 
   switch (inputFileExtension) {
     case 'js':
-      template.javascript(input, output);
+      template.javascript(input, output, proxy);
       break;
 
     case 'scss':

@@ -4,8 +4,9 @@ const babel = require('rollup-plugin-babel');
 const {uglify} = require('rollup-plugin-uglify');
 const postcss = require('rollup-plugin-postcss');
 const autoprefixer = require('autoprefixer');
+let browsersync = undefined;
 
-const {input, output} = require('./package.json');
+const {input, output, proxy} = require('./package.json');
 const isProduction = process.env.production ? true : false;
 
 const postcssOptions = {
@@ -13,6 +14,14 @@ const postcssOptions = {
   plugins: [autoprefixer()],
   minimize: isProduction,
   sourceMap: !isProduction,
+};
+
+if (proxy) browsersync = require('rollup-plugin-browsersync');
+
+const browsersyncOptions = {
+  ui: false,
+  notify: false,
+  proxy,
 };
 
 module.exports = {
@@ -28,5 +37,6 @@ module.exports = {
     babel({exclude: 'node_modules/**'}),
     isProduction ? uglify() : '',
     postcss(postcssOptions),
+    !isProduction && proxy ? browsersync(browsersyncOptions) : '',
   ],
 };
