@@ -4,7 +4,7 @@
  * Dependencies
  */
 const inquirer = require('inquirer');
-const template = require('./includes/template');
+const customize = require('./includes/customize');
 const {getValidFileExtension} = require('./includes/functions');
 
 /**
@@ -20,7 +20,7 @@ const inputFileExtension = getValidFileExtension(inputFileName);
  * Check if input file is valid.
  */
 if (inputFileExtension === false) {
-  console.log('Input file is not javascript or scss.');
+  console.log('Input file is not javascript.');
   return;
 }
 
@@ -31,26 +31,42 @@ inquirer
     .prompt([
       {
         type: 'input',
-        name: 'output',
+        name: 'outputPath',
         message: 'Enter the output file path: ',
-        default: `${cwd}/output/${inputFileName}`,
+        default: `${cwd}/dist/`,
+      },
+      {
+        type: 'input',
+        name: 'outputFileName',
+        message: 'Enter the output file path: ',
+        default: inputFileName,
         validate: (userInput) => {
           if (getValidFileExtension(userInput)) {
             return true;
           }
-          return 'Output file extension needs to be js or scss.';
+          return 'Output file extension needs to be js.';
         },
+      },
+      {
+        type: 'confirm',
+        name: 'extractCSS',
+        message: 'Should imported css is to be extracted?',
+        default: false,
       },
       {
         type: 'confirm',
         name: 'browsersync',
         message: 'Will browsersync be used?',
+        default: true,
       },
       {
         type: 'input',
         name: 'proxy',
         message: 'Please enter proxy addres: ',
         default: false,
+        filter: (userInput) => {
+          return 'http://' + userInput;
+        },
         when: ({browsersync}) => {
           return browsersync;
         },
@@ -63,18 +79,11 @@ inquirer
 /**
  * Process answers
  */
-function startProcess({output, proxy}) {
+function startProcess({outputPath, outputFileName, extractCSS, proxy}) {
   const input = `${cwd}/${inputFileName}`;
+  const output = `${outputPath}/${outputFileName}`;
 
-  switch (inputFileExtension) {
-    case 'js':
-      template.javascript(input, output, proxy);
-      break;
-
-    case 'scss':
-      template.scss(input, output);
-      break;
-  }
+  customize(input, output, extractCSS, proxy);
 
   console.log(
       '\033[32m',
