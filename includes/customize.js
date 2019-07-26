@@ -14,7 +14,7 @@ module.exports = (input, output, css, proxy, mainNodeModulesPath) => {
     'rollup-plugin-uglify',
   ];
 
-  if (proxy) devDependencies.push('rollup-plugin-browsersync');
+  if (proxy) devDependencies.push('browser-sync');
 
   const packageJSON = {
     input,
@@ -36,7 +36,7 @@ module.exports = (input, output, css, proxy, mainNodeModulesPath) => {
 
   runScripts([
     'npm run link',
-    'npm run build',
+    'npm run start',
   ]);
 };
 

@@ -9,14 +9,14 @@ const postcss = require('rollup-plugin-postcss');
 const autoprefixer = require('autoprefixer');
 
 /**
- * @const isProduction is a argument in "npm run build" script
- * from package.json and is used for rollup-js config conditionals.
- */
+* @const isProduction is a argument in "npm run build" script
+* from package.json and is used for rollup-js config conditionals.
+*/
 const isProduction = process.env.production ? true : false;
 
 /**
- * Gets necessary package.json's properties for.
- */
+* Gets necessary package.json's properties for.
+*/
 const {
   input,
   output,
@@ -26,8 +26,8 @@ const {
 } = require('./package.json');
 
 /**
- * Postcss Options
- */
+* Postcss Options
+*/
 const postcssOptions = {
   extract: css,
   plugins: [autoprefixer()],
@@ -41,23 +41,30 @@ const postcssOptions = {
 };
 
 /**
- * Conditional Dependencies
- */
-let browsersync = undefined;
-if (proxy) browsersync = require('rollup-plugin-browsersync');
+* Conditional Dependencies
+*/
+let browserSync = undefined;
+if (proxy) browserSync = require('browser-sync').create();
 
 /**
- * BrowserSync Options
- */
-const browsersyncOptions = {
+* BrowserSync Options
+*/
+const browserSyncOptions = {
   ui: false,
   notify: false,
+  watch: true,
   proxy,
+  files: [output],
 };
 
 /**
- * Rollup-js config
- */
+* Start browser-sync
+*/
+if (!isProduction) browserSync.init(browserSyncOptions);
+
+/**
+* Rollup-js config
+*/
 module.exports = {
   input: input,
   output: {
@@ -71,6 +78,5 @@ module.exports = {
     babel({exclude: `${mainNodeModulesPath}/**`}),
     isProduction ? uglify() : '',
     postcss(postcssOptions),
-    !isProduction && proxy ? browsersync(browsersyncOptions) : '',
   ],
 };

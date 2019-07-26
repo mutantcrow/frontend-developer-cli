@@ -19,7 +19,7 @@ const utils = require('./includes/utils');
 const cwd = process.cwd();
 const inputFileName = process.argv.slice(2)[0];
 const inputFileExtension = utils.getValidExtension(inputFileName,
-    ['js', 'css']);
+    ['js', 'scss']);
 
 /**
  * Check if input file extension is valid.
