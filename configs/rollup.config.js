@@ -20,16 +20,19 @@ const isProduction = process.env.production ? true : false;
 const {
   input,
   output,
-  css,
-  proxy,
+  cssOutput,
   mainNodeModulesPath,
+  useBrowserSync,
+  browserSyncServer,
+  proxy,
+  server,
 } = require('./package.json');
 
 /**
 * Postcss Options
 */
 const postcssOptions = {
-  extract: css,
+  extract: cssOutput,
   plugins: [autoprefixer()],
   minimize: isProduction,
   sourceMap: !isProduction,
@@ -44,7 +47,7 @@ const postcssOptions = {
 * Conditional Dependencies
 */
 let browserSync = undefined;
-if (proxy) browserSync = require('browser-sync').create();
+if (useBrowserSync) browserSync = require('browser-sync').create();
 
 /**
 * BrowserSync Options
@@ -53,9 +56,18 @@ const browserSyncOptions = {
   ui: false,
   notify: false,
   watch: true,
-  proxy,
   files: [output],
 };
+
+switch (browserSyncServer) {
+  case 'Use proxy':
+    browserSyncOptions.proxy = proxy;
+    break;
+
+  case 'Use server':
+    browserSyncOptions.server = server;
+    break;
+}
 
 /**
 * Start browser-sync

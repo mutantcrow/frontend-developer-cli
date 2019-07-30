@@ -1,7 +1,28 @@
 const {writeJSONSync, copyFileSync} = require('fs-extra');
 const execSync = require('child_process').execSync;
 
-module.exports = (input, output, css, proxy, mainNodeModulesPath) => {
+module.exports = ({inputFileName, inputFileExtension}, {
+  outputPath,
+  outputFileName,
+  cssExtract,
+  cssPath,
+  cssFileName,
+  useBrowserSync,
+  browserSyncServer,
+  proxy,
+  server,
+  mainNodeModulesPath,
+}) => {
+  const input = inputFileName;
+  const output = `${outputPath}/${outputFileName}`;
+  let cssOutput = false;
+
+  if (inputFileExtension === 'scss') {
+    cssOutput = true;
+  } else if (cssExtract) {
+    cssOutput = `${cssPath}/${cssFileName}`;
+  }
+
   const devDependencies = [
     '@babel/core',
     '@babel/preset-env',
@@ -14,14 +35,17 @@ module.exports = (input, output, css, proxy, mainNodeModulesPath) => {
     'rollup-plugin-uglify',
   ];
 
-  if (proxy) devDependencies.push('browser-sync');
+  if (proxy || server) devDependencies.push('browser-sync');
 
   const packageJSON = {
     input,
     output,
-    proxy,
-    css,
+    cssOutput,
     mainNodeModulesPath,
+    useBrowserSync,
+    browserSyncServer,
+    proxy,
+    server,
     scripts: {
       start: 'rollup -c -w',
       build: 'rollup -c --environment production',

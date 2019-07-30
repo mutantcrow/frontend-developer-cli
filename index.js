@@ -12,11 +12,9 @@ const customize = require('./includes/customize');
 const utils = require('./includes/utils');
 
 /**
- * @const cwd  Get current working directory path.
  * @const inputFileName  Get input file name.
  * @const inputFileExtension Must be js or scss.
  */
-const cwd = process.cwd();
 const inputFileName = process.argv.slice(2)[0];
 const inputFileExtension = utils.getValidExtension(inputFileName,
     ['js', 'scss']);
@@ -44,7 +42,7 @@ inquirer.prompt([
     type: 'input',
     name: 'outputPath',
     message: 'Enter the output file path: ',
-    default: `${cwd}/../dist/`,
+    default: '../dist',
   },
   {
     type: 'input',
@@ -77,7 +75,7 @@ inquirer.prompt([
     type: 'input',
     name: 'cssPath',
     message: 'Please enter css extraction path: ',
-    default: `${cwd}/../dist/`,
+    default: '../dist',
     when: ({cssExtract}) => cssExtract && inputFileExtension === 'js',
   },
   {
@@ -98,42 +96,45 @@ inquirer.prompt([
   },
   {
     type: 'confirm',
-    name: 'browsersync',
-    message: 'Will browsersync be used?',
+    name: 'useBrowserSync',
+    message: 'Will BrowserSync be used?',
     default: true,
+  },
+  {
+    type: 'list',
+    name: 'browserSyncServer',
+    message: 'Choose server type: ',
+    choices: [
+      'Use proxy',
+      'Use server',
+    ],
+    when: ({useBrowserSync}) => {
+      return useBrowserSync;
+    },
   },
   {
     type: 'input',
     name: 'proxy',
     message: 'Please enter proxy addres: ',
-    default: false,
+    default: 'localhost',
     filter: (userInput) => {
       return 'http://' + userInput;
     },
-    when: ({browsersync}) => {
-      return browsersync;
+    when: ({browserSyncServer}) => {
+      return browserSyncServer === 'Use proxy';
     },
   },
-]).then(({
-  outputPath,
-  outputFileName,
-  cssExtract,
-  cssPath,
-  cssFileName,
-  proxy,
-  mainNodeModulesPath,
-}) => {
-  const input = `${cwd}/${inputFileName}`;
-  const output = `${outputPath}/${outputFileName}`;
-  let css = false;
-
-  if (inputFileExtension === 'scss') {
-    css = true;
-  } else if (cssExtract) {
-    css = `${cssPath}/${cssFileName}`;
-  }
-
-  customize(input, output, css, proxy, mainNodeModulesPath);
+  {
+    type: 'input',
+    name: 'server',
+    message: 'Please enter server folder path: ',
+    default: './test',
+    when: ({browserSyncServer}) => {
+      return browserSyncServer === 'Use server';
+    },
+  },
+]).then((answers) => {
+  customize({inputFileName, inputFileExtension}, answers);
 
   console.log(
       '\033[32m',
