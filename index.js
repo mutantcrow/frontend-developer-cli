@@ -10,6 +10,7 @@
 const inquirer = require('inquirer');
 const customize = require('./includes/customize');
 const utils = require('./includes/utils');
+const chalk = require('chalk');
 
 /**
  * @const inputFileName  Get input file name.
@@ -23,8 +24,8 @@ const inputFileExtension = utils.getValidExtension(inputFileName,
  * Check if input file extension is valid.
  */
 if (inputFileExtension === false) {
-  console.log('Input file is not javascript or sass.');
-  return;
+  console.log(chalk.bgRed.bold('Input file is not javascript or sass.'));
+  process.exit();
 }
 
 /**
@@ -43,6 +44,7 @@ inquirer.prompt([
     name: 'outputPath',
     message: 'Enter the output file path: ',
     default: '../dist',
+    filter: utils.addLastSlash,
   },
   {
     type: 'input',
@@ -76,6 +78,7 @@ inquirer.prompt([
     name: 'cssPath',
     message: 'Please enter css extraction path: ',
     default: '../dist',
+    filter: utils.addLastSlash,
     when: ({cssExtract}) => cssExtract && inputFileExtension === 'js',
   },
   {
@@ -91,7 +94,7 @@ inquirer.prompt([
     message: 'Please enter a path for main >>PATH<</node_modules: ',
     default: './',
     filter: (userInput) => {
-      return userInput + 'node_modules';
+      return utils.addLastSlash(userInput) + 'node_modules';
     },
   },
   {
@@ -115,10 +118,11 @@ inquirer.prompt([
   {
     type: 'input',
     name: 'proxy',
-    message: 'Please enter proxy addres: ',
+    message: 'Please enter proxy address: ',
     default: 'localhost',
     filter: (userInput) => {
-      return 'http://' + userInput;
+      if (userInput.search('http') === -1) return 'http://' + userInput;
+      return userInput;
     },
     when: ({browserSyncServer}) => {
       return browserSyncServer === 'Use proxy';
@@ -136,8 +140,5 @@ inquirer.prompt([
 ]).then((answers) => {
   customize({inputFileName, inputFileExtension}, answers);
 
-  console.log(
-      '\033[32m',
-      `Build tools generated for ${inputFileName}.`,
-      '\x1b[0m');
+  console.log(chalk.bgGreen(`Build tools generated for ${inputFileName}.`));
 });

@@ -14,7 +14,7 @@ module.exports = ({inputFileName, inputFileExtension}, {
   mainNodeModulesPath,
 }) => {
   const input = inputFileName;
-  const output = `${outputPath}/${outputFileName}`;
+  const output = outputPath + outputFileName;
   let cssOutput = false;
 
   if (inputFileExtension === 'scss') {

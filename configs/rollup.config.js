@@ -44,6 +44,17 @@ const postcssOptions = {
 };
 
 /**
+* Babel Options
+*/
+const babelOptions = {
+  babelrc: false,
+  presets: [
+    ['@babel/env', {modules: false}],
+  ],
+  exclude: `${mainNodeModulesPath}/**`,
+};
+
+/**
 * Conditional Dependencies
 */
 let browserSync = undefined;
@@ -77,17 +88,17 @@ if (!isProduction) browserSync.init(browserSyncOptions);
 /**
 * Rollup-js config
 */
-module.exports = {
+export default {
   input: input,
   output: {
     file: output,
-    format: 'cjs',
+    format: 'esm',
   },
   watch: {exclude: `${mainNodeModulesPath}/**`},
   plugins: [
     resolve(),
     commonjs(),
-    babel({exclude: `${mainNodeModulesPath}/**`}),
+    babel(babelOptions),
     isProduction ? uglify() : '',
     postcss(postcssOptions),
   ],
