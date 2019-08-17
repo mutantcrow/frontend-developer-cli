@@ -1,51 +1,25 @@
 const {writeJSONSync, copyFileSync} = require('fs-extra');
 const execSync = require('child_process').execSync;
 
-module.exports = ({inputFileName, inputFileExtension}, {
-  outputPath,
-  outputFileName,
-  cssExtract,
-  cssPath,
-  cssFileName,
-  useBrowserSync,
-  browserSyncServer,
-  proxy,
-  server,
-  mainNodeModulesPath,
-}) => {
-  const input = inputFileName;
-  const output = outputPath + outputFileName;
-  let cssOutput = false;
-
-  if (inputFileExtension === 'scss') {
-    cssOutput = true;
-  } else if (cssExtract) {
-    cssOutput = `${cssPath}/${cssFileName}`;
-  }
-
+module.exports = (answers) => {
   const devDependencies = [
     '@babel/core',
     '@babel/preset-env',
+    '@babel/plugin-syntax-dynamic-import',
+    'browser-sync',
     'autoprefixer',
     'node-sass',
-    'rollup-plugin-babel',
+    'postcss-import',
+    'postcss-copy',
+    'rollup',
     'rollup-plugin-commonjs',
+    'rollup-plugin-babel',
     'rollup-plugin-node-resolve',
     'rollup-plugin-postcss',
-    'rollup-plugin-uglify',
+    'rollup-plugin-terser',
   ];
 
-  if (proxy || server) devDependencies.push('browser-sync');
-
-  const packageJSON = {
-    input,
-    output,
-    cssOutput,
-    mainNodeModulesPath,
-    useBrowserSync,
-    browserSyncServer,
-    proxy,
-    server,
+  const packageJSON = {...answers,
     scripts: {
       start: 'rollup -c -w',
       build: 'rollup -c --environment production',
@@ -60,7 +34,7 @@ module.exports = ({inputFileName, inputFileExtension}, {
 
   runScripts([
     'npm run link',
-    'npm run start',
+    /* 'npm run start', */
   ]);
 };
 

@@ -11,27 +11,8 @@ const inquirer = require('inquirer');
 const customize = require('./includes/customize');
 const utils = require('./includes/utils');
 const chalk = require('chalk');
-
-/**
- * @const inputFileName  Get input file name.
- * @const inputFileExtension Must be js or scss.
- */
-const inputFileName = process.argv.slice(2)[0];
-const inputFileExtension = utils.getValidExtension(inputFileName,
-    ['js', 'scss']);
-
-/**
- * Check if input file extension is valid.
- */
-if (inputFileExtension === false) {
-  console.log(chalk.bgRed.bold('Input file is not javascript or sass.'));
-  process.exit();
-}
-
-/**
- * @const inputFileBaseName Removed extension from the file name.
- */
-const inputFileBaseName = inputFileName.split(/(\.js|\.scss)/)[0];
+const fs = require('fs');
+const global = {};
 
 /**
  * Start Asking Questions
@@ -40,62 +21,82 @@ const inputFileBaseName = inputFileName.split(/(\.js|\.scss)/)[0];
  */
 inquirer.prompt([
   {
+    type: 'list',
+    name: 'inputFile',
+    message: 'Select input file: ',
+    choices: fs.readdirSync(process.cwd()),
+  },
+  {
     type: 'input',
     name: 'outputPath',
     message: 'Enter the output file path: ',
     default: '../dist',
     filter: utils.addLastSlash,
+    when: ({inputFile}) => {
+      global.inputFileExtension = utils.getValidExtension(inputFile,
+          ['js', 'scss']);
+
+      if ( global.inputFileExtension) {
+        return true;
+      } else {
+        console.log(chalk.bgRed.bold('Input file is not javascript or sass.'));
+        process.exit();
+      }
+    },
   },
   {
     type: 'input',
-    name: 'outputFileName',
+    name: 'outputFile',
     message: 'Enter a output file name: ',
-    default: () => {
-      switch (inputFileExtension) {
+    default: ({inputFile}) => {
+      global.inputFileName = inputFile.split(/(\.js|\.scss)$/)[0];
+      return global.inputFileName;
+    },
+    filter: (userInput) => {
+      switch (global.inputFileExtension) {
         case 'js':
-          return inputFileBaseName + '.js';
+          return userInput + '.js';
 
         case 'scss':
-          return inputFileBaseName + '.css';
+          return userInput + '.css';
       }
-    },
-    validate: (userInput) => {
-      if (utils.getValidExtension(userInput, ['js', 'css'])) {
-        return true;
-      }
-      return `Output file extension needs to be js or css.`;
     },
   },
   {
+    type: 'list',
+    name: 'outputFormat',
+    message: 'Enter a output format: ',
+    choices: ['esm', 'iife', 'umd', 'cjs', 'amd'],
+  },
+  {
     type: 'confirm',
-    name: 'cssExtract',
+    name: 'extractCSS',
     message: 'Should imported css is to be extracted?',
     default: false,
-    when: inputFileExtension === 'js',
+    when: ({inputFile}) => inputFile.search(/\.js/) !== -1,
   },
   {
     type: 'input',
     name: 'cssPath',
     message: 'Please enter css extraction path: ',
-    default: '../dist',
+    default: ({outputPath}) => outputPath,
     filter: utils.addLastSlash,
-    when: ({cssExtract}) => cssExtract && inputFileExtension === 'js',
+    when: ({extractCSS}) => extractCSS,
   },
   {
     type: 'input',
-    name: 'cssFileName',
+    name: 'cssFile',
     message: 'Please enter a name for css file: ',
-    default: `${inputFileBaseName}.css`,
-    when: ({cssExtract}) => cssExtract && inputFileExtension === 'js',
+    default: ({inputFile}) => inputFile.split(/\.js/)[0],
+    filter: (userInput) => userInput + '.css',
+    when: ({extractCSS}) => extractCSS,
   },
   {
     type: 'input',
     name: 'mainNodeModulesPath',
     message: 'Please enter a path for main >>PATH<</node_modules: ',
     default: './',
-    filter: (userInput) => {
-      return utils.addLastSlash(userInput) + 'node_modules';
-    },
+    filter: (userInput) => utils.addLastSlash(userInput) + 'node_modules',
   },
   {
     type: 'confirm',
@@ -105,40 +106,37 @@ inquirer.prompt([
   },
   {
     type: 'list',
-    name: 'browserSyncServer',
+    name: 'browserSyncSelect',
     message: 'Choose server type: ',
     choices: [
       'Use proxy',
       'Use server',
     ],
-    when: ({useBrowserSync}) => {
-      return useBrowserSync;
-    },
+    when: ({useBrowserSync}) => useBrowserSync,
   },
   {
     type: 'input',
-    name: 'proxy',
+    name: 'browserSyncSelection',
     message: 'Please enter proxy address: ',
     default: 'localhost',
     filter: (userInput) => {
       if (userInput.search('http') === -1) return 'http://' + userInput;
       return userInput;
     },
-    when: ({browserSyncServer}) => {
-      return browserSyncServer === 'Use proxy';
-    },
+    when: ({browserSyncSelect}) => browserSyncSelect === 'Use proxy',
   },
   {
     type: 'input',
-    name: 'server',
+    name: 'browserSyncSelection',
     message: 'Please enter server folder path: ',
-    default: './test',
-    when: ({browserSyncServer}) => {
-      return browserSyncServer === 'Use server';
-    },
+    default: './public',
+    filter: utils.addLastSlash,
+    when: ({browserSyncSelect}) => browserSyncSelect === 'Use server',
   },
 ]).then((answers) => {
-  customize({inputFileName, inputFileExtension}, answers);
+  customize(answers);
 
-  console.log(chalk.bgGreen(`Build tools generated for ${inputFileName}.`));
+  console.log(
+      chalk.bgGreen(`Build tools generated for "${answers.inputFile}".`)
+  );
 });
