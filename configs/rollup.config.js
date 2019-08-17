@@ -1,6 +1,7 @@
 /**
  * Dependencies
  */
+import del from 'rollup-plugin-delete';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
@@ -34,11 +35,21 @@ const {
 } = require('./package.json');
 
 /**
+ * Del Options
+ */
+const delOptions = {
+  targets: [
+    outputPath + outputFile + '*',
+    cssPath + cssFile + '*',
+  ],
+};
+
+/**
  * Postcss Options
  */
 const postcssOptions = {
   extract: extractCSS === undefined ? true :
-  (cssPath ? `${cssPath}/${cssFile}` : false),
+  (cssPath ? `${cssPath + cssFile}` : false),
   plugins: [
     atImport,
     autoprefixer,
@@ -107,6 +118,7 @@ export default {
   },
   watch: {exclude: `${mainNodeModulesPath}/**`},
   plugins: [
+    del(delOptions),
     resolve(),
     commonjs(),
     babel(babelOptions),
