@@ -32,6 +32,7 @@ const {
   useBrowserSync,
   browserSyncSelect,
   browserSyncSelection,
+  excludedDependencies,
 } = require('./package.json');
 
 /**
@@ -42,6 +43,7 @@ const delOptions = {
     outputPath + outputFile + '*',
     cssPath + cssFile + '*',
   ],
+  force: true,
 };
 
 /**
@@ -73,7 +75,7 @@ const babelOptions = {
     ['@babel/env', {modules: false}],
   ],
   plugins: ['@babel/plugin-syntax-dynamic-import'],
-  exclude: `${mainNodeModulesPath}/**`,
+  exclude: mainNodeModulesPath,
 };
 
 if (useBrowserSync) {
@@ -116,9 +118,10 @@ export default {
     format: outputFormat,
     sourcemap: !isProduction,
   },
-  watch: {exclude: `${mainNodeModulesPath}/**`},
+  external: excludedDependencies,
+  watch: {exclude: mainNodeModulesPath},
   plugins: [
-    del(delOptions),
+    isProduction ? del(delOptions) : '',
     resolve(),
     commonjs(),
     babel(babelOptions),

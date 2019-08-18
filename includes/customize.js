@@ -21,6 +21,7 @@ module.exports = (answers) => {
   ];
 
   const packageJSON = {...answers,
+    excludedDependencies: [],
     scripts: {
       start: 'rollup -c -w',
       build: 'rollup -c --environment production',
