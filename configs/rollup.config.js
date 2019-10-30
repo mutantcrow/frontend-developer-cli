@@ -58,7 +58,7 @@ const postcssOptions = {
     copy({
       basePath: ['./', mainNodeModulesPath],
       dest: cssPath || outputPath,
-      template: '[name].[ext]',
+      template: '[name]-[hash].[ext]',
     }),
   ],
   minimize: isProduction,
