@@ -71,11 +71,21 @@ const postcssOptions = {
  */
 const babelOptions = {
   babelrc: false,
+  comments: false,
   presets: [
     ['@babel/env', {modules: false}],
   ],
   plugins: ['@babel/plugin-syntax-dynamic-import'],
   exclude: mainNodeModulesPath,
+};
+
+/**
+ * Terser Options
+ */
+const terserOptions = {
+  output: {
+    comments: false,
+  },
 };
 
 if (useBrowserSync) {
@@ -125,7 +135,7 @@ export default {
     resolve(),
     commonjs(),
     babel(babelOptions),
-    isProduction ? terser() : '',
+    isProduction ? terser(terserOptions) : '',
     postcss(postcssOptions),
   ],
 };
